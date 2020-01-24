@@ -1,9 +1,9 @@
 package com.test.spring.rest.test4.service;
 
-import com.test.spring.rest.test4.model.ArrayModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,36 +11,34 @@ import java.util.stream.Collectors;
 @Service
 public class DemoService {
 
-    public List<Integer> orderArrays(ArrayModel arrayModel) {
+    private static final Logger logger = LoggerFactory.getLogger(DemoService.class);
 
-        //Defines the store for the two list
-        List<Integer> arrayOne = arrayModel.getArrayOne();
-        List<Integer> arrayTwo = arrayModel.getArrayTwo();
+    public List<Integer> orderArrays(List<Integer> firstList, List<Integer> secondList) {
 
-        //Defines a store for the merged lists.
-        List<Integer> mergedArray = new ArrayList<>();
+        //Records a log message.
+        logger.debug("START :: Service Method Starts");
 
-        //stores the original lists inside the third one.
-        mergedArray.addAll(arrayOne);
-        mergedArray.addAll(arrayTwo);
+        //Local variable.
+        List<Integer> orderedList = null;
 
-        //order the the merged list.
-        //Collections.sort(mergedArray, Collections.reverseOrder());
+        try {
 
-        //Returns the requested data.
-        //return mergedArray;
+            //Stores the second list inside the first one.
+            firstList.addAll(secondList);
 
-        //----------------------------------
-        //Natural order using streams.
-        /*List<Integer> arrayOneOrdered =
-                arrayOne.stream()
-                .sorted(Comparator.naturalOrder())
-                .collect(Collectors.toList());*/
+            //Removes the duplicates and orders the list of integers.
+            orderedList = firstList.stream().distinct().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+
+        } catch (Exception exception) {
+
+            //Records a log message.
+            logger.error("There was an error processing the lists of integers, " + exception.getMessage());
+        }
+
+        //Records a log message.
+        logger.debug("END :: Service Method Starts");
 
         //Reverse order using streams.
-        return mergedArray.stream()
-                .distinct()
-                .sorted(Comparator.reverseOrder())
-                .collect(Collectors.toList());
+        return orderedList;
     }
 }
