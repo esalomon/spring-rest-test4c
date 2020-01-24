@@ -11,7 +11,7 @@
     <groupId>com.demo</groupId>
     <artifactId>spring-rest-test3</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>spring-rest-test3</name>
+    <name>spring-rest-test4b</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>

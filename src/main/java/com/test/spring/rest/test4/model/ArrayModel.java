@@ -1,4 +1,4 @@
-package com.test.spring.rest.test5.model;
+package com.test.spring.rest.test4.model;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

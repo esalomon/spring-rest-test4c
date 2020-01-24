@@ -1,7 +1,7 @@
-package com.test.spring.rest.test5.controller;
+package com.test.spring.rest.test4.controller;
 
-import com.test.spring.rest.test5.model.ArrayModel;
-import com.test.spring.rest.test5.service.DemoService;
+import com.test.spring.rest.test4.model.ArrayModel;
+import com.test.spring.rest.test4.service.DemoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
