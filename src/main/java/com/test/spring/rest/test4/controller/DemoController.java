@@ -1,5 +1,8 @@
 package com.test.spring.rest.test4.controller;
 
+import com.test.spring.rest.test4.exceptions.ParameterListException;
+import com.test.spring.rest.test4.exceptions.ProcessingListException;
+import com.test.spring.rest.test4.service.CommonService;
 import com.test.spring.rest.test4.service.DemoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,59 +10,67 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.test.spring.rest.test4.common.AppConstants.*;
 
 @RestController
 public class DemoController {
 
     private static final Logger logger = LoggerFactory.getLogger(DemoController.class);
 
+    CommonService commonService;
     DemoService demoService;
 
     @Autowired
-    public DemoController(DemoService demoService) {
+    public DemoController(CommonService commonService,
+                          DemoService demoService) {
+
+        this.commonService = commonService;
         this.demoService = demoService;
     }
 
-    @RequestMapping(value = "/sort_list_of_values", method = RequestMethod.GET)
-    public ResponseEntity<Object> getArrayOrdered(@RequestParam List<Integer> firstList,
-                                                  @RequestParam List<Integer> secondList) {
+    /**
+     * Receives two lists and then it merges into one list, then it orders the resulting list
+     * using a reverseOrder criteria. Note, if the first or second list are null or empty the
+     * controller throws an 404 response.
+     * @param firstList references the first list.
+     * @param secondList references the second list.
+     * @return the merging result of first and second list ordered as reversedOrder.
+     * @throws ProcessingListException if there is any issue processing the list.
+     */
+    @GetMapping(ORDER_LIST_V1)
+    public ResponseEntity<List<Integer>> getArrayOrdered(@RequestParam(required = false)
+                                                         List<Integer> firstList,
+                                                         @RequestParam(required = false)
+                                                         List<Integer> secondList) {
 
         //Records a log message.
         logger.info("Accepting 2 list of integers and sorting");
 
-        //Local variables.
-        List<Integer> orderedList = null;
-        ResponseEntity<Object> responseEntity = null;
+        //Checks if the retrieved list is not null or empty.
+        if (CollectionUtils.isEmpty(firstList) || CollectionUtils.isEmpty(secondList) ) {
 
-        //Null Check for Input.
-        if (CollectionUtils.isEmpty(firstList) || CollectionUtils.isEmpty(secondList)) {
+            //Records a log message.
+            logger.error(PARAMETER_LIST_EMPTY_OR_NULL);
 
-            //Defines a bad request response.
-            responseEntity = new ResponseEntity(orderedList, HttpStatus.BAD_REQUEST);
-        } else {
+            //Defines a internal server error response.
+            throw new ParameterListException(PARAMETER_LIST_EMPTY_OR_NULL);
+        }
 
-            //Call the Service to process the received data.
-            orderedList = demoService.orderArrays(firstList, secondList);
+        //Call the Service to process the received data.
+        List<Integer> orderedList = demoService.orderArrays(firstList, secondList);
 
-            //Checks if the retrieved list is not null or empty.
-            if (!CollectionUtils.isEmpty(orderedList)) {
+        //Checks if the retrieved list is not null or empty.
+        if (CollectionUtils.isEmpty(orderedList)) {
 
-                //Defines a response with the ordered data.
-                responseEntity = new ResponseEntity<Object>(orderedList, HttpStatus.OK);
-            } else {
-
-                //Defines a internal server error response.
-                responseEntity = new ResponseEntity<Object>(orderedList, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            //Throws and logs an error message.
+            commonService.throwProcessingListException(logger, INTERNAL_SERVICE_ERROR);
         }
 
         //Returns the created response.
-        return responseEntity;
+        return new ResponseEntity<>(orderedList, HttpStatus.OK);
     }
 }
